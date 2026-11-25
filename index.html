@@ -381,7 +381,7 @@ let lastSave = 0;
 audio.addEventListener('loadedmetadata', () => { if (current && current.queue) { try { const p = +localStorage.getItem(posKey(current.url)) || 0; if (p > 30 && p < audio.duration - 30) audio.currentTime = p; } catch(e){} } });
 audio.addEventListener('timeupdate', () => { if (current && current.queue && Date.now() - lastSave > 5000) { lastSave = Date.now(); try { localStorage.setItem(posKey(current.url), Math.floor(audio.currentTime)); } catch(e){} } });
 audio.addEventListener('ended', () => { if (current && current.queue) { try { localStorage.removeItem(posKey(current.url)); } catch(e){} const q = current.queue, n = current.lesson + 1; if (q[n]) { libQueue = q; playLesson(n); } } });
-audio.addEventListener('playing', () => { $('#pl-state').textContent = 'بث مباشر'; $('#pp').textContent = '⏸'; });
+audio.addEventListener('playing', () => { $('#pl-state').textContent = current && current.queue ? 'درس ' + (current.lesson + 1) + ' من ' + current.queue.length : 'بث مباشر'; $('#pp').textContent = '⏸'; });
 audio.addEventListener('pause', () => { $('#pp').textContent = '▶'; });
 audio.addEventListener('waiting', () => { $('#pl-state').textContent = 'جاري التحميل…'; });
 audio.addEventListener('error', () => { if (current) $('#pl-state').innerHTML = 'البث مش متاح دلوقتي · <a style="color:#e8b23a" target="_blank" rel="noopener" href="' + current.src + '">افتح الموقع الرسمي</a>'; });
