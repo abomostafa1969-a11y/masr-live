@@ -63,6 +63,18 @@ h2:first-child{margin-top:0}
 #player button{width:46px;height:46px;border-radius:50%;border:0;background:var(--gold);color:#14201c;font-size:18px;cursor:pointer}
 #player input[type=range]{width:110px;accent-color:var(--gold)}
 .empty{color:var(--mute)}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 12px;font-size:14px}
+.crumbs button{font:inherit;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.list{display:grid;gap:8px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:start;font:inherit;color:inherit;width:100%}
+.row:hover{border-color:var(--gold)}
+.row.on{border-color:var(--green);box-shadow:0 0 0 2px var(--green) inset}
+.row .num{min-width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--bg);font-weight:700;font-size:13px;flex:none}
+.row b{display:block;font-weight:600;line-height:1.35}
+.row small{color:var(--mute);font-size:13px}
+.row .go{margin-inline-start:auto;color:var(--mute)}
+.libsearch{width:100%;font:inherit;font-size:16px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin:0 0 12px}
+.spin{color:var(--mute);padding:20px 0}
 footer{color:var(--mute);font-size:13px;max-width:1240px;margin:20px auto;padding:0 max(5vw,16px)}
 @media(max-width:600px){nav{gap:2px}nav button{padding:10px 9px;font-size:14px}.top{flex-wrap:wrap}.search{width:100%;order:3}#player input[type=range]{display:none}}
 </style>
@@ -78,6 +90,7 @@ footer{color:var(--mute);font-size:13px;max-width:1240px;margin:20px auto;paddin
     <button role="tab" data-tab="radio" aria-selected="true">الإذاعات</button>
     <button role="tab" data-tab="tv" aria-selected="false">القنوات</button>
     <button role="tab" data-tab="islamic" aria-selected="false">إسلامي</button>
+    <button role="tab" data-tab="lib" aria-selected="false">المكتبة</button>
     <button role="tab" data-tab="sport" aria-selected="false">أون سبورت</button>
     <button role="tab" data-tab="fav" aria-selected="false">المفضلة ★</button>
   </nav>
@@ -217,6 +230,94 @@ const SPORT_LINKS = [
   {n:'قناة أون سبورت على يوتيوب',d:'ملخصات وأهداف وبرامج',u:'https://www.youtube.com/@ONSporteg'}
 ];
 const LABEL = {audio:'تشغيل مباشر',hlsaudio:'تشغيل مباشر',hls:'تشغيل مباشر',embed:'تشغيل مباشر (يوتيوب)',link:'مشغّل الموقع الرسمي',ext:'على منصة شاهد ↗'};
+
+// ===== مكتبة المحاضرات =====
+const UTH = 'https://shekhapi.binothaimeen.net/course/sections/audio_library/';
+const UTH_AUDIO = 'https://shekhcp.binothaimeen.net/storage/';
+const ALB = [
+  ['سلسلة الهدى والنور','selselat_Alhoda-wa-nnor_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['فتاوى جدة','fatawa_jeddah_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['رحلة النور','rehlat_noor_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['محاضرات ودروس متفرقة','Ashrita_motanawi3a_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['لقاءات المدينة 1408 هـ','leqaat_madinah_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['أسئلة وفتاوى الإمارات','As2ilat_wa_Fatawa_Al_Imarat_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['فتاوى رابغ','fatawa_rabegh_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['صفة صلاة النبي ﷺ','sefat_salah_nabi_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['أخلاق المسلم','Akhla9_Al_Moslem_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['مفهوم السلفية','mafhom_salafia_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['الدرر في مصطلح أهل الأثر','Al-Dorrar_Fi-Mostala7_ahlAthar_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['أسئلة أبي إسحاق الحويني للألباني','Howaini_Questions_Torath_Cheikh_Al_Albani_up-by-muslem'],
+  ['الأجوبة الألبانية على أسئلة أبي الحسن','Al-ajouiba_Al-albania_3la_As2ilat_aby_hassan_Torath_Cheikh_Al_Albani_up-by-mus']
+];
+let W2A = null;
+const w2a = () => W2A || (W2A = fetch('lectures.json').then(r => r.json()));
+const uthNode = (t, id) => ({t, load: async () => {
+  const s = (await fetch(UTH + 'show/' + id + '/100?getSectionsOneLevel=1').then(r => r.json())).data;
+  if (s.children && s.children.length) return {nodes: s.children.map(c => ({...uthNode(c.title.ar, c.id), n: c.many_all_lessons_count}))};
+  let out = [], page = 1, last = 1;
+  do { const l = await fetch(UTH + 'many_lessons/' + id + '/100?page=' + page).then(r => r.json()); out = out.concat(l.data || []); last = (l.meta && l.meta.last_page) || 1; page++; } while (page <= last && page < 40);
+  return {lessons: out.filter(x => x.certificate_url).map(x => ({t: x.title.ar, u: UTH_AUDIO + x.certificate_url}))};
+}});
+const albNode = (t, id) => ({t, load: async () => {
+  const m = await fetch('https://archive.org/metadata/' + id).then(r => r.json());
+  const f = m.files.filter(f => /\.mp3$/i.test(f.name) && f.source === 'original').sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true}));
+  return {lessons: f.map((x, i) => ({t: t + ' - الشريط ' + (i + 1), u: 'https://archive.org/download/' + id + '/' + encodeURIComponent(x.name)}))};
+}});
+const w2aNode = key => ({load: async () => {
+  const d = (await w2a())[key];
+  return {nodes: d.series.map(se => ({t: se.t, n: se.items.length, load: async () => ({lessons: se.items.map(i => ({t: i.t, u: i.u}))})}))};
+}});
+const LIB = [
+  {t:'الشيخ محمد بن صالح العثيمين', d:'المكتبة الصوتية الرسمية للشيخ', c:'#0b6b4a', load: async () => ({nodes: [
+    uthNode('الشروحات العلمية','df9776db-d45c-4318-a839-1910140b2cd2'),
+    uthNode('اللقاءات والفتاوى','59d21fb4-6758-4c4a-9240-440aca48eb59'),
+    uthNode('دروس الحرمين','e9f04658-0fd5-4bc3-b340-16d2a1cdabf2'),
+    uthNode('المحاضرات','2aa2d267-14d8-4504-8862-609c044fc16f'),
+    uthNode('الخطب','7effa690-52bb-4463-b91e-75d4508579a8'),
+    uthNode('المرأة','09168125-b1e7-4d18-b92c-fc1f21e0be02')]})},
+  {t:'الشيخ محمد ناصر الدين الألباني', d:'تراث الشيخ: الهدى والنور وفتاوى جدة ورحلة النور وغيرها', c:'#155e75', load: async () => ({nodes: ALB.map(([t, id]) => albNode(t, id))})},
+  {t:'الشيخ أبو إسحاق الحويني', d:'الشروح والسلاسل والمحاضرات', c:'#6b4f1d', ...w2aNode('17')},
+  {t:'الشيخ محمد حسان', d:'السلاسل والمحاضرات', c:'#3f5e2a', ...w2aNode('1')},
+  {t:'الشيخ محمد حسين يعقوب', d:'السلاسل والمحاضرات', c:'#5b3a6b', ...w2aNode('2')}
+];
+let libPath = [];   // stack of {node, data}
+let libQueue = [];  // lessons of the open list
+const posKey = u => 'pos:' + u;
+async function libOpen(node){
+  libPath.push({node, data: null}); renderLib();
+  try { libPath[libPath.length - 1].data = await node.load(); }
+  catch(e) { libPath[libPath.length - 1].data = {error: true}; }
+  renderLib();
+}
+function renderLib(){
+  if (tab !== 'lib') return;
+  const top = libPath[libPath.length - 1];
+  const crumbs = `<div class="crumbs"><button data-crumb="-1">المكتبة</button>${libPath.map((p, i) => `<span>‹</span><button data-crumb="${i}">${esc(p.node.t)}</button>`).join('')}</div>`;
+  let body = '';
+  if (!top) body = `<p class="note">محاضرات وشروح المشايخ بالصوت من مواقعهم ومكتباتهم، من غير يوتيوب. اختار الشيخ، وبعدين القسم والسلسلة، واضغط على الدرس. الدروس بتكمّل ورا بعض، والتطبيق بيفتكر وقفت فين في كل درس.</p><div class="list">${LIB.map((n, i) => `<button class="row" data-lib="${i}"><span class="badge" style="background:${n.c}">${esc(initials(n.t))}</span><span><b>${esc(n.t)}</b><small>${esc(n.d)}</small></span><span class="go">‹</span></button>`).join('')}</div>`;
+  else if (!top.data) body = '<p class="spin">جاري التحميل…</p>';
+  else if (top.data.error) body = '<p class="note">المصدر مش بيرد دلوقتي. جرّب تاني بعد شوية.</p>';
+  else {
+    const q = ($('#libq') && $('#libq').value) || '';
+    body = `<input id="libq" class="libsearch" type="search" placeholder="ابحث في القائمة" value="${esc(q)}">`;
+    if (top.data.nodes) {
+      const list = top.data.nodes.map((n, i) => ({n, i})).filter(x => !q || x.n.t.includes(q));
+      body += `<div class="list">${list.map(({n, i}) => `<button class="row" data-node="${i}"><span><b>${esc(n.t)}</b>${n.n ? `<small>${n.n} درس</small>` : ''}</span><span class="go">‹</span></button>`).join('') || '<p class="empty">مفيش نتائج.</p>'}</div>`;
+    } else {
+      libQueue = top.data.lessons;
+      const list = libQueue.map((l, i) => ({l, i})).filter(x => !q || x.l.t.includes(q));
+      body += `<div class="list">${list.map(({l, i}) => { let pos = 0; try { pos = +localStorage.getItem(posKey(l.u)) || 0 } catch(e){}; return `<button class="row${current && current.url === l.u ? ' on' : ''}" data-lesson="${i}"><span class="num">${i + 1}</span><span><b>${esc(l.t)}</b>${pos > 30 ? `<small>وقفت عند ${Math.floor(pos / 60)} دقيقة</small>` : ''}</span><span class="go">▶</span></button>`; }).join('') || '<p class="empty">مفيش دروس.</p>'}</div>`;
+    }
+  }
+  $('#main').innerHTML = crumbs + body;
+  const qi = $('#libq'); if (qi) { qi.oninput = () => { const v = qi.value; renderLib(); const n = $('#libq'); n.focus(); n.setSelectionRange(v.length, v.length); }; }
+}
+function playLesson(i){
+  const l = libQueue[i]; if (!l) return;
+  const sch = libPath[0] ? libPath[0].node : {t: '', c: '#0b3d2e'};
+  playAudio({id: 'lib-' + i, n: l.t, d: sch.t, c: sch.c, type: 'audio', url: l.u, src: l.u, lesson: i, queue: libQueue});
+}
+
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -235,6 +336,7 @@ function card(s){
     <button class="fav${favs.has(s.id)?' y':''}" data-fav="${s.id}" aria-label="مفضلة">${favs.has(s.id)?'★':'☆'}</button></div>`;
 }
 function render(){
+  if (tab === 'lib' && !$('#q').value.trim()) { document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab)); return renderLib(); }
   document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
   const q = $('#q').value.trim();
   const match = s => !q || (s.n + s.d).includes(q) || (s.n + s.d).toLowerCase().includes(q.toLowerCase());
@@ -274,6 +376,10 @@ function playAudio(s){
   render();
 }
 function stopAudio(){ if (ahls) { ahls.destroy(); ahls = null; } audio.pause(); audio.removeAttribute('src'); audio.load(); $('#player').classList.remove('show'); current = null; render(); }
+let lastSave = 0;
+audio.addEventListener('loadedmetadata', () => { if (current && current.queue) { try { const p = +localStorage.getItem(posKey(current.url)) || 0; if (p > 30 && p < audio.duration - 30) audio.currentTime = p; } catch(e){} } });
+audio.addEventListener('timeupdate', () => { if (current && current.queue && Date.now() - lastSave > 5000) { lastSave = Date.now(); try { localStorage.setItem(posKey(current.url), Math.floor(audio.currentTime)); } catch(e){} } });
+audio.addEventListener('ended', () => { if (current && current.queue) { try { localStorage.removeItem(posKey(current.url)); } catch(e){} const q = current.queue, n = current.lesson + 1; if (q[n]) { libQueue = q; playLesson(n); } } });
 audio.addEventListener('playing', () => { $('#pl-state').textContent = 'بث مباشر'; $('#pp').textContent = '⏸'; });
 audio.addEventListener('pause', () => { $('#pp').textContent = '▶'; });
 audio.addEventListener('waiting', () => { $('#pl-state').textContent = 'جاري التحميل…'; });
@@ -312,6 +418,10 @@ function activate(el){
 $('#main').addEventListener('click', e => {
   const f = e.target.closest('[data-fav]');
   if (f) { e.stopPropagation(); const id = f.dataset.fav; favs.has(id) ? favs.delete(id) : favs.add(id); store.set('favs', [...favs]); render(); return; }
+  const lb = e.target.closest('[data-lib]'); if (lb) { libPath = []; libOpen(LIB[+lb.dataset.lib]); return; }
+  const nd = e.target.closest('[data-node]'); if (nd) { libOpen(libPath[libPath.length - 1].data.nodes[+nd.dataset.node]); return; }
+  const ls = e.target.closest('[data-lesson]'); if (ls) { playLesson(+ls.dataset.lesson); return; }
+  const cr = e.target.closest('[data-crumb]'); if (cr) { libPath = libPath.slice(0, +cr.dataset.crumb + 1); renderLib(); return; }
   const c = e.target.closest('.st'); if (c) activate(c);
 });
 $('#main').addEventListener('keydown', e => { const c = e.target.closest('.st'); if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); activate(c); } });
