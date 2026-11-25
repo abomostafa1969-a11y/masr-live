@@ -52,6 +52,7 @@ h2:first-child{margin-top:0}
 .frame .bar a{color:var(--gold);font-size:14px;margin-inline-start:auto}
 .frame .bar button{background:#333;color:#fff;border:0;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
 .ratio{aspect-ratio:16/9;width:100%}
+.ratio.page{aspect-ratio:auto;height:min(82vh,900px)}
 .ratio iframe{width:100%;height:100%;border:0;display:block}
 #player{position:fixed;inset-inline:0;bottom:0;background:var(--green);color:#fff;padding:12px max(5vw,16px) calc(12px + env(safe-area-inset-bottom,0px));display:none;align-items:center;gap:12px;z-index:10}
 #player.show{display:flex}
@@ -188,7 +189,7 @@ const DATA = {
     {g:'مجموعة MBC', items:[
       {id:'t-arabiya',n:'العربية',d:'بث رسمي بدون إعلانات',c:'#b5651d',type:'hls',url:'https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8',src:'https://www.alarabiya.net/live-stream'},
       {id:'t-hadath',n:'الحدث',d:'بث رسمي بدون إعلانات',c:'#8e1b1b',type:'hls',url:'https://live.alarabiya.net/alarabiapublish/alhadath.smil/playlist.m3u8',src:'https://www.alhadath.net/live-stream'},
-      {id:'t-mbc',n:'MBC 1 و MBC مصر وباقي القنوات',d:'على منصة شاهد الرسمية',c:'#1a237e',type:'link',url:'https://shahid.mbc.net/ar/livestream'}
+      {id:'t-mbc',n:'MBC 1 و MBC مصر وباقي القنوات',d:'على منصة شاهد الرسمية',c:'#1a237e',type:'ext',url:'https://shahid.mbc.net/ar/livestream'}
     ]},
     {g:'شبكة الجزيرة', items:[
       {id:'t-aj',n:'الجزيرة',d:'بث رسمي بدون إعلانات',c:'#c8961e',type:'hls',url:'https://live-hls-web-aja.getaj.net/AJA/index.m3u8',src:'https://www.aljazeera.net/live'},
@@ -202,10 +203,10 @@ const DATA = {
       {id:'i-sa-quran',n:'قناة القرآن الكريم (مكة)',d:'البث الرسمي',c:'#006c35',type:'embed',url:YT('IsJTAdC3-Jw'),src:'https://aloula.sba.sa/live/quran'},
       {id:'i-sa-sunna',n:'قناة السنة النبوية (المدينة)',d:'البث الرسمي',c:'#0a5c3a',type:'embed',url:YT('DLnqQHiDbaI'),src:'https://aloula.sba.sa/live/sunna'},
       {id:'i-iqraa',n:'قناة اقرأ',d:'البث الرسمي',c:'#1d6b4f',type:'embed',url:YT('7yIMyi3AR1w'),src:'https://www.youtube.com/@iqraa/live'},
-      {id:'i-athar',n:'قناة الأثر',d:'القناة الرسمية',c:'#6b4f1d',type:'link',url:'https://www.youtube.com/channel/UCMZvooIh92rId3dkTRgdDeQ/live'},
-      {id:'i-rahma',n:'قناة الرحمة',d:'القناة الرسمية',c:'#155e75',type:'link',url:'https://www.youtube.com/channel/UCY9j0n2-prtlMHUnnLA9dTw/live'},
-      {id:'i-majdq',n:'المجد للقرآن الكريم',d:'القناة الرسمية',c:'#3f5e2a',type:'link',url:'https://www.youtube.com/channel/UCKg2dp4g9Y0VOmciYlwsR7g/live'},
-      {id:'i-majd',n:'شبكة المجد',d:'القناة الرسمية',c:'#5b3a6b',type:'link',url:'https://www.youtube.com/channel/UCwrOzs_R_1zmb5HZr3DDilg/live'}
+      {id:'i-athar',n:'قناة الأثر',d:'القناة الرسمية',c:'#6b4f1d',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCMZvooIh92rId3dkTRgdDeQ&autoplay=1',src:'https://www.youtube.com/channel/UCMZvooIh92rId3dkTRgdDeQ/live'},
+      {id:'i-rahma',n:'قناة الرحمة',d:'القناة الرسمية',c:'#155e75',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCY9j0n2-prtlMHUnnLA9dTw&autoplay=1',src:'https://www.youtube.com/channel/UCY9j0n2-prtlMHUnnLA9dTw/live'},
+      {id:'i-majdq',n:'المجد للقرآن الكريم',d:'القناة الرسمية',c:'#3f5e2a',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCKg2dp4g9Y0VOmciYlwsR7g&autoplay=1',src:'https://www.youtube.com/channel/UCKg2dp4g9Y0VOmciYlwsR7g/live'},
+      {id:'i-majd',n:'شبكة المجد',d:'القناة الرسمية',c:'#5b3a6b',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCwrOzs_R_1zmb5HZr3DDilg&autoplay=1',src:'https://www.youtube.com/channel/UCwrOzs_R_1zmb5HZr3DDilg/live'}
     ]}
   ],
   sport: [
@@ -219,7 +220,7 @@ const SPORT_LINKS = [
   {n:'WATCH IT',d:'البث الرسمي لقنوات أون سبورت (باشتراك)',u:'https://www.watchit.com/'},
   {n:'قناة أون سبورت على يوتيوب',d:'ملخصات وأهداف وبرامج',u:'https://www.youtube.com/@ONSporteg'}
 ];
-const LABEL = {audio:'تشغيل هنا',hlsaudio:'تشغيل هنا',hls:'تشغيل هنا',embed:'تشغيل هنا (يوتيوب)',link:'يفتح في الموقع الرسمي ↗'};
+const LABEL = {audio:'تشغيل مباشر',hlsaudio:'تشغيل مباشر',hls:'تشغيل مباشر',embed:'تشغيل مباشر (يوتيوب)',link:'مشغّل الموقع الرسمي',ext:'على منصة شاهد ↗'};
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -254,9 +255,9 @@ function render(){
     const groups = tab === 'radio' ? DATA.radio.filter(g => !ISL.test(g.g)) : tab === 'islamic' ? [...DATA.islamic, ...DATA.radio.filter(g => ISL.test(g.g))] : DATA[tab];
     html += groups.map(g => `<h2>${g.g}</h2><div class="grid">${g.items.map(card).join('')}</div>`).join('');
     if (tab === 'sport') html += `<h2>المصادر الرسمية</h2><div class="links">${SPORT_LINKS.map(l=>`<a href="${l.u}" target="_blank" rel="noopener"><b>${l.n} ↗</b><small>${l.d}</small></a>`).join('')}</div>`;
-    if (tab === 'radio') html = '<p class="note">«تشغيل هنا» يشتغل جوه التطبيق مباشرة. ماسبيرو ونداء الإسلام مش بيسمحوا بتشغيل بثهم خارج مواقعهم، فبيفتحوا في الموقع الرسمي.</p>' + html;
-    if (tab === 'islamic') html = '<p class="note">قنوات وإذاعات إسلامية سنية من مصادرها الرسمية. الرحمة والمجد والأثر بتفتح على قناتها الرسمية، لأن بثها المباشر مش متاح مجانًا طول الوقت (المجد باشتراك).</p>' + html;
-    if (tab === 'tv') html = '<p class="note">«تشغيل هنا» يشتغل جوه التطبيق. قنوات ماسبيرو والقنوات السعودية وMBC بتفتح في مواقعها الرسمية لأنها مش بتسمح بتشغيل بثها خارجها.</p>' + html;
+    if (tab === 'radio') html = '<p class="note">كله بيشتغل جوه التطبيق. إذاعات ماسبيرو ونداء الإسلام بتظهر بمشغّل موقعها الرسمي جوه التطبيق، وممكن تحتاج تضغط ▶ في المشغّل.</p>' + html;
+    if (tab === 'islamic') html = '<p class="note">قنوات وإذاعات إسلامية سنية من مصادرها الرسمية. الرحمة والمجد والأثر بتشتغل من قناتها الرسمية على يوتيوب لما يكون عندها بث مباشر (المجد معظم بثها باشتراك).</p>' + html;
+    if (tab === 'tv') html = '<p class="note">كله بيشتغل جوه التطبيق. قنوات ماسبيرو والقنوات السعودية بتظهر بمشغّل موقعها الرسمي جوه التطبيق، وممكن تحتاج تضغط ▶ في المشغّل.</p>' + html;
   }
   $('#main').innerHTML = html;
 }
@@ -296,6 +297,8 @@ function openStage(s){
     v.play().catch(()=>{});
     $('#stage').classList.add('open'); return;
   }
+  $('#st-box').classList.toggle('page', s.type === 'link');
+  $('#st-src').href = s.src || s.url;
   $('#st-box').innerHTML = `<iframe src="${s.url}" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   $('#stage').classList.add('open');
 }
@@ -307,7 +310,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStage()
 
 function activate(el){
   const s = byId(el.dataset.id); if (!s) return;
-  if (s.type === 'link') { window.open(s.url, '_blank', 'noopener'); return; }
+  if (s.type === 'ext') { window.open(s.url, '_blank', 'noopener'); return; }
   (s.type === 'audio' || s.type === 'hlsaudio') ? playAudio(s) : openStage(s);
 }
 $('#main').addEventListener('click', e => {
