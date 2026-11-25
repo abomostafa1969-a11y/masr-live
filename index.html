@@ -202,11 +202,7 @@ const DATA = {
     {g:'📺 قنوات القرآن الكريم والسنة', items:[
       {id:'i-sa-quran',n:'قناة القرآن الكريم (مكة)',d:'البث الرسمي',c:'#006c35',type:'embed',url:YT('IsJTAdC3-Jw'),src:'https://aloula.sba.sa/live/quran'},
       {id:'i-sa-sunna',n:'قناة السنة النبوية (المدينة)',d:'البث الرسمي',c:'#0a5c3a',type:'embed',url:YT('DLnqQHiDbaI'),src:'https://aloula.sba.sa/live/sunna'},
-      {id:'i-iqraa',n:'قناة اقرأ',d:'البث الرسمي',c:'#1d6b4f',type:'embed',url:YT('7yIMyi3AR1w'),src:'https://www.youtube.com/@iqraa/live'},
-      {id:'i-athar',n:'قناة الأثر',d:'القناة الرسمية',c:'#6b4f1d',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCMZvooIh92rId3dkTRgdDeQ&autoplay=1',src:'https://www.youtube.com/channel/UCMZvooIh92rId3dkTRgdDeQ/live'},
-      {id:'i-rahma',n:'قناة الرحمة',d:'القناة الرسمية',c:'#155e75',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCY9j0n2-prtlMHUnnLA9dTw&autoplay=1',src:'https://www.youtube.com/channel/UCY9j0n2-prtlMHUnnLA9dTw/live'},
-      {id:'i-majdq',n:'المجد للقرآن الكريم',d:'القناة الرسمية',c:'#3f5e2a',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCKg2dp4g9Y0VOmciYlwsR7g&autoplay=1',src:'https://www.youtube.com/channel/UCKg2dp4g9Y0VOmciYlwsR7g/live'},
-      {id:'i-majd',n:'شبكة المجد',d:'القناة الرسمية',c:'#5b3a6b',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UCwrOzs_R_1zmb5HZr3DDilg&autoplay=1',src:'https://www.youtube.com/channel/UCwrOzs_R_1zmb5HZr3DDilg/live'}
+      {id:'i-iqraa',n:'قناة اقرأ',d:'البث الرسمي',c:'#1d6b4f',type:'embed',url:YT('7yIMyi3AR1w'),src:'https://www.youtube.com/@iqraa/live'}
     ]}
   ],
   sport: [
@@ -256,7 +252,7 @@ function render(){
     html += groups.map(g => `<h2>${g.g}</h2><div class="grid">${g.items.map(card).join('')}</div>`).join('');
     if (tab === 'sport') html += `<h2>المصادر الرسمية</h2><div class="links">${SPORT_LINKS.map(l=>`<a href="${l.u}" target="_blank" rel="noopener"><b>${l.n} ↗</b><small>${l.d}</small></a>`).join('')}</div>`;
     if (tab === 'radio') html = '<p class="note">كله بيشتغل جوه التطبيق. إذاعات ماسبيرو ونداء الإسلام بتظهر بمشغّل موقعها الرسمي جوه التطبيق، وممكن تحتاج تضغط ▶ في المشغّل.</p>' + html;
-    if (tab === 'islamic') html = '<p class="note">قنوات وإذاعات إسلامية سنية من مصادرها الرسمية. الرحمة والمجد والأثر بتشتغل من قناتها الرسمية على يوتيوب لما يكون عندها بث مباشر (المجد معظم بثها باشتراك).</p>' + html;
+    if (tab === 'islamic') html = '<p class="note">قنوات وإذاعات إسلامية سنية من مصادرها الرسمية، وكلها بتشتغل جوه التطبيق.</p>' + html;
     if (tab === 'tv') html = '<p class="note">كله بيشتغل جوه التطبيق. قنوات ماسبيرو والقنوات السعودية بتظهر بمشغّل موقعها الرسمي جوه التطبيق، وممكن تحتاج تضغط ▶ في المشغّل.</p>' + html;
   }
   $('#main').innerHTML = html;
