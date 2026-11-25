@@ -97,6 +97,7 @@ footer{color:var(--mute);font-size:13px;max-width:1240px;margin:20px auto;paddin
 </div>
 <audio id="audio" preload="none"></audio>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
 <script>
 {
 const DM = id => 'https://www.dailymotion.com/embed/video/' + id + '?autoplay=1';
@@ -144,13 +145,11 @@ const DATA = {
       {id:'t-qahera',n:'القاهرة الإخبارية',d:'AlQahera News',c:'#b71c1c',type:'embed',url:YT('GtBCVKHHz7E'),src:'https://www.youtube.com/channel/UCktyejXTxWaKfrgp1Oq7CMQ/live'},
       {id:'t-nas',n:'القاهرة والناس',d:'Al Kahera Wal Nas',c:'#e67e22',type:'embed',url:YT('ENOR_-SUZkA'),src:'https://www.youtube.com/channel/UCzWdc0aUo0IDk5ysLrt04hw/live'}
     ]}
-    ,{g:'شبكة الجزيرة (يوتيوب الرسمي)', items:[
-      {id:'t-aj',n:'الجزيرة',d:'Al Jazeera Arabic',c:'#c8961e',type:'embed',url:YT('FelGGahCbS8'),src:'https://www.youtube.com/channel/UCfiwzLy-8yKzIbsmZTzxDgw/live'},
-      {id:'t-ajnow',n:'الجزيرة الآن',d:'Al Jazeera Arabic',c:'#a87a12',type:'embed',url:YT('bNyUyrR0PHo'),src:'https://www.youtube.com/channel/UCfiwzLy-8yKzIbsmZTzxDgw/live'},
-      {id:'t-ajm',n:'الجزيرة مباشر',d:'Al Jazeera Mubasher',c:'#d35400',type:'embed',url:YT('N8xxOD0nT1Y'),src:'https://www.youtube.com/channel/UCfiwzLy-8yKzIbsmZTzxDgw/live'},
-      {id:'t-ajd',n:'الجزيرة الوثائقية',d:'Al Jazeera Documentary',c:'#2e7d32',type:'embed',url:YT('TiPYdMXt_XI'),src:'https://www.youtube.com/channel/UC0LSnqrwqtMwl2YwfUpO66g/live'},
-      {id:'t-aje',n:'الجزيرة الإنجليزية',d:'Al Jazeera English',c:'#8d6e00',type:'embed',url:YT('gCNeDWCI0vo'),src:'https://www.youtube.com/channel/UCNye-wNBqNL5ZzHSJj3l8Bg/live'},
-      {id:'t-ajb',n:'الجزيرة البلقان',d:'Al Jazeera Balkans',c:'#455a64',type:'embed',url:'https://www.youtube.com/embed/live_stream?channel=UC_yXEx3-Gk5drg9qhPzSQSg&autoplay=1',src:'https://www.youtube.com/channel/UC_yXEx3-Gk5drg9qhPzSQSg/live'}
+    ,{g:'شبكة الجزيرة (بث رسمي بدون إعلانات)', items:[
+      {id:'t-aj',n:'الجزيرة',d:'Al Jazeera Arabic',c:'#c8961e',type:'hls',url:'https://live-hls-web-aja.getaj.net/AJA/index.m3u8',src:'https://www.aljazeera.net/live'},
+      {id:'t-ajm',n:'الجزيرة مباشر',d:'Al Jazeera Mubasher',c:'#d35400',type:'hls',url:'https://live-hls-web-ajm.getaj.net/AJM/index.m3u8',src:'https://www.ajmubasher.net/live'},
+      {id:'t-ajd',n:'الجزيرة الوثائقية',d:'Al Jazeera Documentary',c:'#2e7d32',type:'hls',url:'https://live-hls-web-ajd.getaj.net/AJD/index.m3u8',src:'https://doc.aljazeera.net/live'},
+      {id:'t-aje',n:'الجزيرة الإنجليزية',d:'Al Jazeera English',c:'#8d6e00',type:'hls',url:'https://live-hls-web-aje-fa.getaj.net/AJE/index.m3u8',src:'https://www.aljazeera.com/live'}
     ]}
   ],
   sport: [
@@ -180,7 +179,7 @@ const initials = n => { const w = n.replace(/^(إذاعة|راديو|القنا�
 function card(s){
   return `<div class="st${current&&current.id===s.id?' on':''}" role="button" tabindex="0" data-id="${s.id}">
     <span class="badge" style="background:${s.c}">${esc(initials(s.n))}</span>
-    <span><b>${esc(s.n)}</b><small>${esc(s.d)} · ${s.type==='audio'?'صوت':'المشغل الرسمي'}${offline.has(s.id)?' · <span style="color:var(--red)">متوقف الآن</span>':''}</small></span>
+    <span><b>${esc(s.n)}</b><small>${esc(s.d)} · ${s.type==='audio'?'صوت':s.type==='hls'?'بدون إعلانات':'المشغل الرسمي'}${offline.has(s.id)?' · <span style="color:var(--red)">متوقف الآن</span>':''}</small></span>
     <button class="fav${favs.has(s.id)?' y':''}" data-fav="${s.id}" aria-label="مفضلة">${favs.has(s.id)?'★':'☆'}</button></div>`;
 }
 function render(){
@@ -198,7 +197,7 @@ function render(){
     if (tab === 'sport') html += `<p class="note">${SPORT_NOTE}</p>`;
     html += DATA[tab].map(g => `<h2>${g.g}</h2><div class="grid">${g.items.map(card).join('')}</div>`).join('');
     if (tab === 'sport') html += `<h2>المصادر الرسمية</h2><div class="links">${SPORT_LINKS.map(l=>`<a href="${l.u}" target="_blank" rel="noopener"><b>${l.n} ↗</b><small>${l.d}</small></a>`).join('')}</div>`;
-    if (tab === 'radio') html = '<p class="note">إذاعات ماسبيرو بتشتغل من مشغل ماسبيرو الرسمي (ممكن يظهر إعلان قصير في الأول). الإذاعات الخاصة بتشتغل صوت بس في المشغل اللي تحت.</p>' + html;
+    if (tab === 'radio') html = '<p class="note">الإذاعات الخاصة بتشتغل مباشرة بدون إعلانات. إذاعات ماسبيرو بتشتغل من مشغّل ماسبيرو الرسمي على Dailymotion، وممكن يظهر فيه إعلان قصير من المصدر نفسه.</p>' + html;
   }
   $('#main').innerHTML = html;
 }
@@ -226,10 +225,19 @@ $('#vol').oninput = e => audio.volume = +e.target.value;
 function openStage(s){
   if (current) stopAudio();
   $('#st-name').textContent = s.n; $('#st-src').href = s.src;
+  if (s.type === 'hls') {
+    $('#st-box').innerHTML = '<video controls autoplay playsinline style="width:100%;height:100%;background:#000"></video>';
+    const v = $('#st-box video');
+    if (v.canPlayType('application/vnd.apple.mpegurl')) v.src = s.url;
+    else if (window.Hls && Hls.isSupported()) { hls = new Hls(); hls.loadSource(s.url); hls.attachMedia(v); }
+    v.play().catch(()=>{});
+    $('#stage').classList.add('open'); return;
+  }
   $('#st-box').innerHTML = `<iframe src="${s.url}" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   $('#stage').classList.add('open');
 }
-function closeStage(){ $('#stage').classList.remove('open'); $('#st-box').innerHTML = ''; }
+let hls = null;
+function closeStage(){ if (hls) { hls.destroy(); hls = null; } $('#stage').classList.remove('open'); $('#st-box').innerHTML = ''; }
 $('#st-close').onclick = closeStage;
 $('#stage').onclick = e => { if (e.target.id === 'stage') closeStage(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStage(); });
