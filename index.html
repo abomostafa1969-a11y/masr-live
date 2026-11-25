@@ -22,6 +22,8 @@ header{background:var(--green);color:#fff;padding:calc(env(safe-area-inset-top,0
 h1{margin:0;font-size:clamp(26px,4vw,36px);line-height:1.1;font-weight:800}
 .sub{margin:2px 0 0;color:#cfe3da;font-size:14px}
 .search{margin-inline-start:auto;width:min(320px,40vw)}
+#upd{flex:none;border:1px solid #ffffff55;background:#ffffff1a;color:#fff;font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:8px 14px;cursor:pointer}#upd:disabled{opacity:.6;cursor:wait}
+#toast{position:fixed;inset-inline:16px;bottom:calc(110px + env(safe-area-inset-bottom,0px));margin:auto;max-width:460px;background:var(--green);color:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 6px 24px #0005;z-index:60;text-align:center;font-weight:600;display:none}
 .search input{width:100%;font:inherit;font-size:16px;padding:10px 14px;border-radius:999px;border:0;background:#ffffff1f;color:#fff}
 .search input::placeholder{color:#cfe3da}
 nav{display:flex;gap:6px;max-width:1240px;margin:18px auto 0;overflow-x:auto}
@@ -76,7 +78,7 @@ h2:first-child{margin-top:0}
 .libsearch{width:100%;font:inherit;font-size:16px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin:0 0 12px}
 .spin{color:var(--mute);padding:20px 0}
 footer{color:var(--mute);font-size:13px;max-width:1240px;margin:20px auto;padding:0 max(5vw,16px)}
-@media(max-width:600px){nav{gap:2px}nav button{padding:10px 9px;font-size:14px}.top{flex-wrap:wrap}.search{width:100%;order:3}#player input[type=range]{display:none}}
+@media(max-width:600px){#upd{order:2;margin-inline-start:auto}nav{gap:2px}nav button{padding:10px 9px;font-size:14px}.top{flex-wrap:wrap}.search{width:100%;order:3}#player input[type=range]{display:none}}
 </style>
 </head>
 <body>
@@ -84,6 +86,7 @@ footer{color:var(--mute);font-size:13px;max-width:1240px;margin:20px auto;paddin
   <div class="top">
     <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#e8b23a"/><path d="M14 30a10 10 0 0 1 20 0" fill="none" stroke="#0b3d2e" stroke-width="3.5" stroke-linecap="round"/><path d="M8 30a16 16 0 0 1 32 0" fill="none" stroke="#0b3d2e" stroke-width="3" stroke-linecap="round" opacity=".55"/><circle cx="24" cy="31" r="4" fill="#d8342c"/></svg>
     <div><h1>مصر لايف</h1><p class="sub">إذاعات وقنوات، بث مباشر من المصادر الرسمية</p></div>
+    <button id="upd" title="تحديث من المصدر">⟳ تحديث</button>
     <label class="search"><input id="q" type="search" placeholder="ابحث عن إذاعة أو قناة" aria-label="بحث"></label>
   </div>
   <nav role="tablist">
@@ -250,17 +253,18 @@ const ALB = [
   ['أسئلة أبي إسحاق الحويني للألباني','Howaini_Questions_Torath_Cheikh_Al_Albani_up-by-muslem'],
   ['الأجوبة الألبانية على أسئلة أبي الحسن','Al-ajouiba_Al-albania_3la_As2ilat_aby_hassan_Torath_Cheikh_Al_Albani_up-by-mus']
 ];
-let W2A = null;
-const w2a = () => W2A || (W2A = fetch('lectures.json').then(r => r.json()));
+let W2A = null, FRESH = false;
+const get = u => fetch(u, {cache: FRESH ? 'reload' : 'default'}).then(r => { if (!r.ok) throw r.status; return r.json(); });
+const w2a = () => W2A || (W2A = get('lectures.json').catch(e => { W2A = null; throw e; }));
 const uthNode = (t, id) => ({t, load: async () => {
-  const s = (await fetch(UTH + 'show/' + id + '/100?getSectionsOneLevel=1').then(r => r.json())).data;
+  const s = (await get(UTH + 'show/' + id + '/100?getSectionsOneLevel=1')).data;
   if (s.children && s.children.length) return {nodes: s.children.map(c => ({...uthNode(c.title.ar, c.id), n: c.many_all_lessons_count}))};
   let out = [], page = 1, last = 1;
-  do { const l = await fetch(UTH + 'many_lessons/' + id + '/100?page=' + page).then(r => r.json()); out = out.concat(l.data || []); last = (l.meta && l.meta.last_page) || 1; page++; } while (page <= last && page < 40);
+  do { const l = await get(UTH + 'many_lessons/' + id + '/100?page=' + page); out = out.concat(l.data || []); last = (l.meta && l.meta.last_page) || 1; page++; } while (page <= last && page < 40);
   return {lessons: out.filter(x => x.certificate_url).map(x => ({t: x.title.ar, u: uthUrl(x.certificate_url)}))};
 }});
 const albNode = (t, id) => ({t, load: async () => {
-  const m = await fetch('https://archive.org/metadata/' + id).then(r => r.json());
+  const m = await get('https://archive.org/metadata/' + id);
   const f = m.files.filter(f => /\.mp3$/i.test(f.name) && f.source === 'original').sort((a, b) => a.name.localeCompare(b.name, 'en', {numeric: true}));
   return {lessons: f.map((x, i) => ({t: t + ' - الشريط ' + (i + 1), u: 'https://archive.org/download/' + id + '/' + encodeURIComponent(x.name)}))};
 }});
@@ -430,7 +434,34 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => { tab = b
 $('#q').oninput = render;
 render();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+const APP_VER = 12;
+function toast(t, ms){ const el = $('#toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.h); if (ms) toast.h = setTimeout(() => el.style.display = 'none', ms); }
+$('#upd').onclick = async () => {
+  const b = $('#upd'); b.disabled = true; toast('جاري الاتصال بالمصدر…');
+  try {
+    const v = await fetch('version.json?t=' + Date.now(), {cache: 'no-store'}).then(r => r.json());
+    if (v.v > APP_VER) {
+      toast('فيه نسخة جديدة، جاري تحميلها…');
+      if ('caches' in window) for (const k of await caches.keys()) await caches.delete(k);
+      if (navigator.serviceWorker) { const r = await navigator.serviceWorker.getRegistration(); if (r) await r.update().catch(()=>{}); }
+      location.replace(location.pathname + '?v=' + v.v); return;
+    }
+    FRESH = true; W2A = null;
+    let n = 0;
+    if (tab === 'lib' && libPath.length) {
+      for (const p of libPath) { p.data = await p.node.load(); }
+      const top = libPath[libPath.length - 1].data; n = (top.nodes || top.lessons || []).length;
+      renderLib();
+      toast('تم التحديث من المصدر مباشرة: ' + n + (top.lessons ? ' درس' : ' قسم'), 4000);
+    } else {
+      await w2a();
+      toast('تم التحديث. أنت على آخر نسخة، والمكتبة متحدثة من المصدر.', 4000);
+    }
+  } catch(e) { toast('مفيش اتصال بالمصدر دلوقتي. جرّب تاني بعد شوية.', 4000); }
+  finally { FRESH = false; b.disabled = false; }
+};
 }
 </script>
+<div id="toast" role="status"></div>
 </body>
 </html>
