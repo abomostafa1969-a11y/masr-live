@@ -63,19 +63,20 @@ h2:first-child{margin-top:0}
 #player input[type=range]{width:110px;accent-color:var(--gold)}
 .empty{color:var(--mute)}
 footer{color:var(--mute);font-size:13px;max-width:1240px;margin:20px auto;padding:0 max(5vw,16px)}
-@media(max-width:600px){nav button{padding:10px 12px}.top{flex-wrap:wrap}.search{width:100%;order:3}#player input[type=range]{display:none}}
+@media(max-width:600px){nav{gap:2px}nav button{padding:10px 9px;font-size:14px}.top{flex-wrap:wrap}.search{width:100%;order:3}#player input[type=range]{display:none}}
 </style>
 </head>
 <body>
 <header>
   <div class="top">
     <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="12" fill="#e8b23a"/><path d="M14 30a10 10 0 0 1 20 0" fill="none" stroke="#0b3d2e" stroke-width="3.5" stroke-linecap="round"/><path d="M8 30a16 16 0 0 1 32 0" fill="none" stroke="#0b3d2e" stroke-width="3" stroke-linecap="round" opacity=".55"/><circle cx="24" cy="31" r="4" fill="#d8342c"/></svg>
-    <div><h1>مصر لايف</h1><p class="sub">إذاعات وقنوات مصرية، بث مباشر من المصادر الرسمية</p></div>
+    <div><h1>مصر لايف</h1><p class="sub">إذاعات وقنوات، بث مباشر من المصادر الرسمية</p></div>
     <label class="search"><input id="q" type="search" placeholder="ابحث عن إذاعة أو قناة" aria-label="بحث"></label>
   </div>
   <nav role="tablist">
     <button role="tab" data-tab="radio" aria-selected="true">الإذاعات</button>
-    <button role="tab" data-tab="tv" aria-selected="false">القنوات المصرية</button>
+    <button role="tab" data-tab="tv" aria-selected="false">القنوات</button>
+    <button role="tab" data-tab="islamic" aria-selected="false">إسلامي</button>
     <button role="tab" data-tab="sport" aria-selected="false">أون سبورت</button>
     <button role="tab" data-tab="fav" aria-selected="false">المفضلة ★</button>
   </nav>
@@ -104,67 +105,121 @@ const DM = id => 'https://www.dailymotion.com/embed/video/' + id + '?autoplay=1'
 const YT = id => 'https://www.youtube.com/embed/' + id + '?autoplay=1';
 const MSP = n => 'https://www.maspero.eg/stream/' + n;
 
-// type: audio = direct stream in the app player; embed = official video player
+// type: audio = direct stream; hlsaudio = HLS audio; hls = HLS video; embed = iframe; link = opens official site
+const KW = n => 'https://live.kwikmotion.com/' + n + '/chunks.m3u8';
+const ALOULA = n => 'https://aloula.sba.sa/live/' + n;
 const DATA = {
   radio: [
-    {g:'إذاعات ماسبيرو الرسمية', items:[
-      {id:'r-quran',n:'إذاعة القرآن الكريم',d:'ماسبيرو',c:'#0b6b4a',type:'embed',url:DM('x84wyku'),src:MSP(7)},
-      {id:'r-general',n:'البرنامج العام',d:'ماسبيرو',c:'#1b4f8f',type:'embed',url:DM('x8n6dt3'),src:MSP(10)},
-      {id:'r-masr',n:'راديو مصر',d:'ماسبيرو',c:'#c0392b',type:'embed',url:DM('x8n6dpk'),src:MSP(8)},
-      {id:'r-arab',n:'صوت العرب',d:'ماسبيرو',c:'#7a4b16',type:'embed',url:DM('x8n6dqq'),src:MSP(9)},
-      {id:'r-youth',n:'الشباب والرياضة',d:'ماسبيرو',c:'#167a3e',type:'embed',url:DM('x8n6dzo'),src:MSP(11)},
-      {id:'r-songs',n:'إذاعة الأغاني',d:'ماسبيرو',c:'#8e2c6b',type:'embed',url:DM('x8n6dyz'),src:MSP(13)},
-      {id:'r-me',n:'الشرق الأوسط',d:'ماسبيرو',c:'#2c6e8e',type:'embed',url:DM('x8n6drt'),src:MSP(16)},
-      {id:'r-cairo',n:'القاهرة الكبرى',d:'ماسبيرو',c:'#5a5a8e',type:'embed',url:DM('x8n6ebs'),src:MSP(14)},
-      {id:'r-culture',n:'البرنامج الثقافي',d:'ماسبيرو',c:'#4d6b2c',type:'embed',url:DM('x8n6eci'),src:MSP(12)},
-      {id:'r-euro',n:'البرنامج الأوروبي',d:'ماسبيرو',c:'#2c4d8e',type:'embed',url:DM('x8n6e6w'),src:MSP(18)},
-      {id:'r-edu',n:'راديو التعليمية',d:'ماسبيرو',c:'#8e6b2c',type:'embed',url:DM('xakfzv2'),src:MSP(24)}
+    {g:'🇪🇬 مصر · القرآن الكريم', items:[
+      {id:'r-quran',n:'إذاعة القرآن الكريم من القاهرة',d:'بث مباشر',c:'#0b6b4a',type:'audio',url:'https://stream.radiojar.com/8s5u5tpdtwzuv',src:MSP(7)}
     ]},
-    {g:'إذاعات FM الخاصة', items:[
-      {id:'r-nogoum',n:'نجوم إف إم 100.6',d:'Nogoum FM',c:'#e4572e',type:'audio',url:'https://stream.zeno.fm/qb1zvsykm98uv',src:'https://www.nogoumfm.net/'},
-      {id:'r-9090',n:'راديو 9090',d:'90.9 FM',c:'#d81b60',type:'audio',url:'https://9090streaming.mobtada.com/9090FMEGYPT',src:'https://www.9090.fm/'},
-      {id:'r-mega',n:'ميجا إف إم 92.7',d:'Mega FM',c:'#f39c12',type:'audio',url:'https://megafm927.radioca.st/stream',src:'https://megafm927.com/'},
-      {id:'r-nagham',n:'نغم إف إم 105.3',d:'Nagham FM',c:'#9b59b6',type:'audio',url:'https://ahmsamir.radioca.st/stream',src:'https://www.naghamfm1053.com/'},
-      {id:'r-hits',n:'راديو هيتس 88.2',d:'Radio Hits',c:'#16a085',type:'audio',url:'https://radiohits882.radioca.st/;',src:'http://radiohits882.com/'},
+    {g:'🇪🇬 مصر · إذاعات عامة وإخبارية (ماسبيرو)', items:[
+      {id:'r-general',n:'البرنامج العام',d:'ماسبيرو',c:'#1b4f8f',type:'link',url:MSP(10)},
+      {id:'r-masr',n:'راديو مصر',d:'ماسبيرو',c:'#c0392b',type:'link',url:MSP(8)},
+      {id:'r-arab',n:'صوت العرب',d:'ماسبيرو',c:'#7a4b16',type:'link',url:MSP(9)},
+      {id:'r-me',n:'الشرق الأوسط',d:'ماسبيرو',c:'#2c6e8e',type:'link',url:MSP(16)},
+      {id:'r-cairo',n:'القاهرة الكبرى',d:'ماسبيرو',c:'#5a5a8e',type:'link',url:MSP(14)},
+      {id:'r-culture',n:'البرنامج الثقافي',d:'ماسبيرو',c:'#4d6b2c',type:'link',url:MSP(12)},
+      {id:'r-euro',n:'البرنامج الأوروبي',d:'ماسبيرو',c:'#2c4d8e',type:'link',url:MSP(18)},
+      {id:'r-edu',n:'راديو التعليمية',d:'ماسبيرو',c:'#8e6b2c',type:'link',url:MSP(24)}
+    ]},
+    {g:'🇪🇬 مصر · رياضة', items:[
+      {id:'r-youth',n:'الشباب والرياضة',d:'ماسبيرو',c:'#167a3e',type:'link',url:MSP(11)},
       {id:'r-onfm',n:'أون سبورت إف إم',d:'ON Sport FM',c:'#c62828',type:'audio',url:'https://carina.streamerr.co:2020/stream/OnSportFM',src:'https://www.onsportfm.com/'}
+    ]},
+    {g:'🇸🇦 السعودية · القرآن الكريم', items:[
+      {id:'r-sa-quran',n:'إذاعة القرآن الكريم السعودية',d:'هيئة الإذاعة والتلفزيون',c:'#006c35',type:'hlsaudio',url:KW('sbrksaquranradiolive/ksaquranradio'),src:ALOULA('quranradio')},
+      {id:'r-nidaa',n:'إذاعة نداء الإسلام',d:'من مكة المكرمة',c:'#0a5c3a',type:'link',url:ALOULA('nidaalislamadio')}
+    ]},
+    {g:'🇸🇦 السعودية · إذاعات عامة', items:[
+      {id:'r-riyadh',n:'إذاعة الرياض',d:'هيئة الإذاعة والتلفزيون',c:'#1d6b4f',type:'hlsaudio',url:KW('sbrksariyadhradiolive/ksariyadhradio'),src:ALOULA('riyadhradio')},
+      {id:'r-jeddah',n:'إذاعة جدة',d:'هيئة الإذاعة والتلفزيون',c:'#2a7f8e',type:'hlsaudio',url:KW('sbrksajeddahradiolive/ksajeddahradio'),src:ALOULA('jeddahradio')},
+      {id:'r-saudia',n:'راديو السعودية',d:'هيئة الإذاعة والتلفزيون',c:'#3b6e2c',type:'hlsaudio',url:KW('sbrksasaudiaradiolive/ksasaudiaradio'),src:ALOULA('saudiaradio')}
+    ]}
+    ,{g:'📿 إذاعات المشايخ القراء', items:[
+      {id:'q-mahmoudkhalilalhussa',n:'الشيخ محمود خليل الحصري',d:'مرتل',c:'#0b6b4a',type:'audio',url:'https://qurango.net/radio/mahmoud_khalil_alhussary',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-mahmoudkhalilalhussa',n:'الحصري (مجود)',d:'مجود',c:'#155e75',type:'audio',url:'https://qurango.net/radio/mahmoud_khalil_alhussary_mojawwad',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-abdulbasitabdulsamad',n:'الشيخ عبد الباسط عبد الصمد',d:'مرتل',c:'#6b4f1d',type:'audio',url:'https://qurango.net/radio/abdulbasit_abdulsamad',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-abdulbasitabdulsamad',n:'عبد الباسط (مجود)',d:'مجود',c:'#3f5e2a',type:'audio',url:'https://qurango.net/radio/abdulbasit_abdulsamad_mojawwad',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-mohammedsiddiqalmins',n:'الشيخ محمد صديق المنشاوي',d:'مرتل',c:'#5b3a6b',type:'audio',url:'https://qurango.net/radio/mohammed_siddiq_alminshawi',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-mohammedsiddiqalmins',n:'المنشاوي (مجود)',d:'مجود',c:'#2c4d8e',type:'audio',url:'https://qurango.net/radio/mohammed_siddiq_alminshawi_mojawwad',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-mustafaismail',n:'الشيخ مصطفى إسماعيل',d:'مجود',c:'#0b6b4a',type:'audio',url:'https://qurango.net/radio/mustafa_ismail',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-mahmoudalialbanna',n:'الشيخ محمود علي البنا',d:'مرتل',c:'#155e75',type:'audio',url:'https://qurango.net/radio/mahmoud_ali__albanna',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-mohammadaltablaway',n:'الشيخ محمد محمود الطبلاوي',d:'مرتل',c:'#6b4f1d',type:'audio',url:'https://qurango.net/radio/mohammad_altablaway',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-abdulrahmanalsudaes',n:'الشيخ عبد الرحمن السديس',d:'إمام الحرم المكي',c:'#3f5e2a',type:'audio',url:'https://qurango.net/radio/abdulrahman_alsudaes',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-saudalshuraim',n:'الشيخ سعود الشريم',d:'إمام الحرم المكي',c:'#5b3a6b',type:'audio',url:'https://qurango.net/radio/saud_alshuraim',src:'https://mp3quran.net/ar/radios'},
+      {id:'q-misharyalafasi',n:'الشيخ مشاري العفاسي',d:'مرتل',c:'#2c4d8e',type:'audio',url:'https://qurango.net/radio/mishary_alafasi',src:'https://mp3quran.net/ar/radios'}
+    ]},
+    {g:'📚 دروس العلماء والتفسير والسيرة', items:[
+      {id:'l-fatwa',n:'الفتاوى',d:'فتاوى كبار العلماء',c:'#0b6b4a',type:'audio',url:'https://qurango.net/radio/fatwa',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-tafseer',n:'تفسير القرآن الكريم',d:'تفسير',c:'#155e75',type:'audio',url:'https://qurango.net/radio/tafseer',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-tabri',n:'الخلاصة من تفسير الطبري',d:'تفسير السلف',c:'#6b4f1d',type:'audio',url:'https://qurango.net/radio/tabri',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-mukhtasartafsir',n:'المختصر في التفسير',d:'تفسير',c:'#3f5e2a',type:'audio',url:'https://qurango.net/radio/mukhtasartafsir',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-gareeb-quran',n:'تفسير غريب القرآن',d:'تفسير',c:'#5b3a6b',type:'audio',url:'https://qurango.net/radio/gareeb-quran',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-fizilalalsiyra',n:'في ظلال السيرة النبوية',d:'٤٠٠ حلقة',c:'#2c4d8e',type:'audio',url:'https://qurango.net/radio/fi_zilal_alsiyra',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-almukhtasarfialsiyra',n:'المختصر في السيرة النبوية',d:'سيرة',c:'#0b6b4a',type:'audio',url:'https://qurango.net/radio/almukhtasar_fi_alsiyra',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-roqiah',n:'الرقية الشرعية',d:'رقية',c:'#155e75',type:'audio',url:'https://qurango.net/radio/roqiah',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-athkarsabah',n:'أذكار الصباح',d:'أذكار',c:'#6b4f1d',type:'audio',url:'https://qurango.net/radio/athkar_sabah',src:'https://mp3quran.net/ar/radios'},
+      {id:'l-athkarmasa',n:'أذكار المساء',d:'أذكار',c:'#3f5e2a',type:'audio',url:'https://qurango.net/radio/athkar_masa',src:'https://mp3quran.net/ar/radios'}
     ]}
   ],
   tv: [
-    {g:'قنوات ماسبيرو الرسمية', items:[
-      {id:'t-1',n:'القناة الأولى',d:'ماسبيرو',c:'#1b4f8f',type:'embed',url:DM('x856hbh'),src:MSP(2)},
-      {id:'t-2',n:'القناة الثانية',d:'ماسبيرو',c:'#c0392b',type:'embed',url:DM('x8n6dm7'),src:MSP(3)},
-      {id:'t-sat',n:'الفضائية المصرية',d:'ماسبيرو',c:'#0b6b4a',type:'embed',url:DM('x8o63b6'),src:MSP(21)},
-      {id:'t-sat-us',n:'الفضائية المصرية (أمريكا)',d:'ماسبيرو',c:'#0b5a6b',type:'embed',url:DM('x84nun4'),src:MSP(4)},
-      {id:'t-news',n:'النيل للأخبار',d:'ماسبيرو',c:'#2c6e8e',type:'embed',url:DM('x84nwne'),src:MSP(1)},
-      {id:'t-zaman',n:'ماسبيرو زمان',d:'ماسبيرو',c:'#7a4b16',type:'embed',url:DM('x8n6e4h'),src:MSP(6)},
-      {id:'t-drama',n:'النيل للدراما',d:'ماسبيرو',c:'#8e2c6b',type:'embed',url:DM('x8n6e3a'),src:MSP(19)},
-      {id:'t-cinema',n:'النيل سينما',d:'ماسبيرو',c:'#5a5a8e',type:'embed',url:DM('x8n6do7'),src:MSP(20)},
-      {id:'t-niletv',n:'النيل الدولية',d:'Nile TV International',c:'#16a085',type:'embed',url:DM('x8lr1r8'),src:MSP(5)}
+    {g:'🇪🇬 مصر · قنوات ماسبيرو', items:[
+      {id:'t-1',n:'القناة الأولى',d:'ماسبيرو',c:'#1b4f8f',type:'link',url:MSP(2)},
+      {id:'t-2',n:'القناة الثانية',d:'ماسبيرو',c:'#c0392b',type:'link',url:MSP(3)},
+      {id:'t-sat',n:'الفضائية المصرية',d:'ماسبيرو',c:'#0b6b4a',type:'link',url:MSP(21)},
+      {id:'t-news',n:'النيل للأخبار',d:'ماسبيرو',c:'#2c6e8e',type:'link',url:MSP(1)},
+      {id:'t-zaman',n:'ماسبيرو زمان',d:'ماسبيرو',c:'#7a4b16',type:'link',url:MSP(6)},
+      {id:'t-drama',n:'النيل للدراما',d:'ماسبيرو',c:'#8e2c6b',type:'link',url:MSP(19)},
+      {id:'t-cinema',n:'النيل سينما',d:'ماسبيرو',c:'#5a5a8e',type:'link',url:MSP(20)}
     ]},
-    {g:'قنوات خاصة (يوتيوب الرسمي)', items:[
-      {id:'t-qahera',n:'القاهرة الإخبارية',d:'AlQahera News',c:'#b71c1c',type:'embed',url:YT('GtBCVKHHz7E'),src:'https://www.youtube.com/channel/UCktyejXTxWaKfrgp1Oq7CMQ/live'},
-      {id:'t-nas',n:'القاهرة والناس',d:'Al Kahera Wal Nas',c:'#e67e22',type:'embed',url:YT('ENOR_-SUZkA'),src:'https://www.youtube.com/channel/UCzWdc0aUo0IDk5ysLrt04hw/live'}
+    {g:'🇪🇬 مصر · قنوات إخبارية وعامة', items:[
+      {id:'t-qahera',n:'القاهرة الإخبارية',d:'يوتيوب الرسمي',c:'#b71c1c',type:'embed',url:YT('GtBCVKHHz7E'),src:'https://www.youtube.com/channel/UCktyejXTxWaKfrgp1Oq7CMQ/live'},
+      {id:'t-nas',n:'القاهرة والناس',d:'يوتيوب الرسمي',c:'#e67e22',type:'embed',url:YT('ENOR_-SUZkA'),src:'https://www.youtube.com/channel/UCzWdc0aUo0IDk5ysLrt04hw/live'}
+    ]},
+    {g:'🇸🇦 السعودية · قنوات هيئة الإذاعة والتلفزيون', items:[
+      {id:'t-sa-1',n:'قناة السعودية',d:'منصة الأولى',c:'#1d6b4f',type:'link',url:ALOULA('saudia')},
+      {id:'t-sa-ekh',n:'الإخبارية',d:'منصة الأولى',c:'#2a5f8e',type:'link',url:ALOULA('alekhbariya')},
+      {id:'t-sa-now',n:'السعودية الآن',d:'منصة الأولى',c:'#3b6e2c',type:'link',url:ALOULA('saudiaalaan')},
+      {id:'t-sa-sbc',n:'SBC',d:'منصة الأولى',c:'#8e2c4d',type:'link',url:ALOULA('sbc')},
+      {id:'t-sa-thik',n:'ذكريات',d:'منصة الأولى',c:'#7a5a16',type:'link',url:ALOULA('thikrayat')},
+      {id:'t-sa-r1',n:'الرياضية 1',d:'منصة الأولى',c:'#167a3e',type:'link',url:ALOULA('riyadiya1')}
+    ]},
+    {g:'مجموعة MBC', items:[
+      {id:'t-arabiya',n:'العربية',d:'بث رسمي بدون إعلانات',c:'#b5651d',type:'hls',url:'https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8',src:'https://www.alarabiya.net/live-stream'},
+      {id:'t-hadath',n:'الحدث',d:'بث رسمي بدون إعلانات',c:'#8e1b1b',type:'hls',url:'https://live.alarabiya.net/alarabiapublish/alhadath.smil/playlist.m3u8',src:'https://www.alhadath.net/live-stream'},
+      {id:'t-mbc',n:'MBC 1 و MBC مصر وباقي القنوات',d:'على منصة شاهد الرسمية',c:'#1a237e',type:'link',url:'https://shahid.mbc.net/ar/livestream'}
+    ]},
+    {g:'شبكة الجزيرة', items:[
+      {id:'t-aj',n:'الجزيرة',d:'بث رسمي بدون إعلانات',c:'#c8961e',type:'hls',url:'https://live-hls-web-aja.getaj.net/AJA/index.m3u8',src:'https://www.aljazeera.net/live'},
+      {id:'t-ajm',n:'الجزيرة مباشر',d:'بث رسمي بدون إعلانات',c:'#d35400',type:'hls',url:'https://live-hls-web-ajm.getaj.net/AJM/index.m3u8',src:'https://www.ajmubasher.net/live'},
+      {id:'t-ajd',n:'الجزيرة الوثائقية',d:'بث رسمي بدون إعلانات',c:'#2e7d32',type:'hls',url:'https://live-hls-web-ajd.getaj.net/AJD/index.m3u8',src:'https://doc.aljazeera.net/live'},
+      {id:'t-aje',n:'الجزيرة الإنجليزية',d:'بث رسمي بدون إعلانات',c:'#8d6e00',type:'hls',url:'https://live-hls-web-aje-fa.getaj.net/AJE/index.m3u8',src:'https://www.aljazeera.com/live'}
     ]}
-    ,{g:'شبكة الجزيرة (بث رسمي بدون إعلانات)', items:[
-      {id:'t-aj',n:'الجزيرة',d:'Al Jazeera Arabic',c:'#c8961e',type:'hls',url:'https://live-hls-web-aja.getaj.net/AJA/index.m3u8',src:'https://www.aljazeera.net/live'},
-      {id:'t-ajm',n:'الجزيرة مباشر',d:'Al Jazeera Mubasher',c:'#d35400',type:'hls',url:'https://live-hls-web-ajm.getaj.net/AJM/index.m3u8',src:'https://www.ajmubasher.net/live'},
-      {id:'t-ajd',n:'الجزيرة الوثائقية',d:'Al Jazeera Documentary',c:'#2e7d32',type:'hls',url:'https://live-hls-web-ajd.getaj.net/AJD/index.m3u8',src:'https://doc.aljazeera.net/live'},
-      {id:'t-aje',n:'الجزيرة الإنجليزية',d:'Al Jazeera English',c:'#8d6e00',type:'hls',url:'https://live-hls-web-aje-fa.getaj.net/AJE/index.m3u8',src:'https://www.aljazeera.com/live'}
+  ],
+  islamic: [
+    {g:'📺 قنوات القرآن الكريم والسنة', items:[
+      {id:'i-sa-quran',n:'قناة القرآن الكريم (مكة)',d:'البث الرسمي',c:'#006c35',type:'embed',url:YT('IsJTAdC3-Jw'),src:'https://aloula.sba.sa/live/quran'},
+      {id:'i-sa-sunna',n:'قناة السنة النبوية (المدينة)',d:'البث الرسمي',c:'#0a5c3a',type:'embed',url:YT('DLnqQHiDbaI'),src:'https://aloula.sba.sa/live/sunna'},
+      {id:'i-iqraa',n:'قناة اقرأ',d:'البث الرسمي',c:'#1d6b4f',type:'embed',url:YT('7yIMyi3AR1w'),src:'https://www.youtube.com/@iqraa/live'},
+      {id:'i-athar',n:'قناة الأثر',d:'القناة الرسمية',c:'#6b4f1d',type:'link',url:'https://www.youtube.com/channel/UCMZvooIh92rId3dkTRgdDeQ/live'},
+      {id:'i-rahma',n:'قناة الرحمة',d:'القناة الرسمية',c:'#155e75',type:'link',url:'https://www.youtube.com/channel/UCY9j0n2-prtlMHUnnLA9dTw/live'},
+      {id:'i-majdq',n:'المجد للقرآن الكريم',d:'القناة الرسمية',c:'#3f5e2a',type:'link',url:'https://www.youtube.com/channel/UCKg2dp4g9Y0VOmciYlwsR7g/live'},
+      {id:'i-majd',n:'شبكة المجد',d:'القناة الرسمية',c:'#5b3a6b',type:'link',url:'https://www.youtube.com/channel/UCwrOzs_R_1zmb5HZr3DDilg/live'}
     ]}
   ],
   sport: [
     {g:'تشغيل مباشر', items:[
-      {id:'s-onfm',n:'أون سبورت إف إم',d:'الراديو الرسمي، بث مباشر',c:'#c62828',type:'audio',url:'https://carina.streamerr.co:2020/stream/OnSportFM',src:'https://www.onsportfm.com/'}
+      {id:'s-onfm',n:'أون سبورت إف إم',d:'الراديو الرسمي',c:'#c62828',type:'audio',url:'https://carina.streamerr.co:2020/stream/OnSportFM',src:'https://www.onsportfm.com/'}
     ]}
   ]
 };
-const SPORT_NOTE = 'قنوات أون سبورت (أون تايم سبورت سابقًا) مالهاش بث مجاني رسمي على الإنترنت، والمباريات بتتعرض أونلاين عن طريق تطبيق WATCH IT باشتراك. علشان كده مش هنستخدم روابط مسروقة؛ هنا الراديو الرسمي يشتغل مباشر، والباقي روابط للمصادر الرسمية.';
+const SPORT_NOTE = 'قنوات أون سبورت مالهاش بث مجاني رسمي على الإنترنت، والمباريات بتتعرض أونلاين على تطبيق WATCH IT باشتراك. هنا الراديو الرسمي يشتغل مباشر، والباقي روابط للمصادر الرسمية.';
 const SPORT_LINKS = [
   {n:'WATCH IT',d:'البث الرسمي لقنوات أون سبورت (باشتراك)',u:'https://www.watchit.com/'},
-  {n:'قناة أون سبورت على يوتيوب',d:'ملخصات وأهداف وبرامج',u:'https://www.youtube.com/@ONSporteg'},
-  {n:'أون سبورت إف إم على يوتيوب',d:'برامج الراديو بالفيديو',u:'https://www.youtube.com/@ONsportFM'}
+  {n:'قناة أون سبورت على يوتيوب',d:'ملخصات وأهداف وبرامج',u:'https://www.youtube.com/@ONSporteg'}
 ];
-
+const LABEL = {audio:'تشغيل هنا',hlsaudio:'تشغيل هنا',hls:'تشغيل هنا',embed:'تشغيل هنا (يوتيوب)',link:'يفتح في الموقع الرسمي ↗'};
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -174,12 +229,12 @@ let current = null;
 let offline = new Set();
 const ALL = Object.values(DATA).flat().flatMap(g => g.items);
 const byId = id => ALL.find(x => x.id === id);
-const initials = n => { const w = n.replace(/^(إذاعة|راديو|القناة|البرنامج)\s+/, '').trim().split(/\s+/)[0].replace(/^ال(?=..)/, ''); return w.slice(0, 2); };
+const initials = n => { const w = n.replace(/^(إذاعة|راديو|القناة|قناة|البرنامج|الشيخ)\s+/, '').trim().split(/\s+/)[0].replace(/^ال(?=..)/, ''); return w.slice(0, 2); };
 
 function card(s){
   return `<div class="st${current&&current.id===s.id?' on':''}" role="button" tabindex="0" data-id="${s.id}">
     <span class="badge" style="background:${s.c}">${esc(initials(s.n))}</span>
-    <span><b>${esc(s.n)}</b><small>${esc(s.d)} · ${s.type==='audio'?'صوت':s.type==='hls'?'بدون إعلانات':'المشغل الرسمي'}${offline.has(s.id)?' · <span style="color:var(--red)">متوقف الآن</span>':''}</small></span>
+    <span><b>${esc(s.n)}</b><small>${esc(s.d)} · ${LABEL[s.type]}${offline.has(s.id)?' · <span style="color:var(--red)">متوقف الآن</span>':''}</small></span>
     <button class="fav${favs.has(s.id)?' y':''}" data-fav="${s.id}" aria-label="مفضلة">${favs.has(s.id)?'★':'☆'}</button></div>`;
 }
 function render(){
@@ -195,25 +250,33 @@ function render(){
     html = r.length ? `<h2>المفضلة</h2><div class="grid">${r.map(card).join('')}</div>` : '<p class="empty">اضغط ☆ على أي إذاعة أو قناة علشان تظهر هنا.</p>';
   } else {
     if (tab === 'sport') html += `<p class="note">${SPORT_NOTE}</p>`;
-    html += DATA[tab].map(g => `<h2>${g.g}</h2><div class="grid">${g.items.map(card).join('')}</div>`).join('');
+    const ISL = /القرآن|المشايخ|دروس/;
+    const groups = tab === 'radio' ? DATA.radio.filter(g => !ISL.test(g.g)) : tab === 'islamic' ? [...DATA.islamic, ...DATA.radio.filter(g => ISL.test(g.g))] : DATA[tab];
+    html += groups.map(g => `<h2>${g.g}</h2><div class="grid">${g.items.map(card).join('')}</div>`).join('');
     if (tab === 'sport') html += `<h2>المصادر الرسمية</h2><div class="links">${SPORT_LINKS.map(l=>`<a href="${l.u}" target="_blank" rel="noopener"><b>${l.n} ↗</b><small>${l.d}</small></a>`).join('')}</div>`;
-    if (tab === 'radio') html = '<p class="note">الإذاعات الخاصة بتشتغل مباشرة بدون إعلانات. إذاعات ماسبيرو بتشتغل من مشغّل ماسبيرو الرسمي على Dailymotion، وممكن يظهر فيه إعلان قصير من المصدر نفسه.</p>' + html;
+    if (tab === 'radio') html = '<p class="note">«تشغيل هنا» يشتغل جوه التطبيق مباشرة. ماسبيرو ونداء الإسلام مش بيسمحوا بتشغيل بثهم خارج مواقعهم، فبيفتحوا في الموقع الرسمي.</p>' + html;
+    if (tab === 'islamic') html = '<p class="note">قنوات وإذاعات إسلامية سنية من مصادرها الرسمية. الرحمة والمجد والأثر بتفتح على قناتها الرسمية، لأن بثها المباشر مش متاح مجانًا طول الوقت (المجد باشتراك).</p>' + html;
+    if (tab === 'tv') html = '<p class="note">«تشغيل هنا» يشتغل جوه التطبيق. قنوات ماسبيرو والقنوات السعودية وMBC بتفتح في مواقعها الرسمية لأنها مش بتسمح بتشغيل بثها خارجها.</p>' + html;
   }
   $('#main').innerHTML = html;
 }
 
 const audio = $('#audio');
+let ahls = null;
 function playAudio(s){
   closeStage();
   current = s;
-  audio.src = s.url; audio.volume = +$('#vol').value;
+  if (ahls) { ahls.destroy(); ahls = null; }
+  if (s.type === 'hlsaudio' && !audio.canPlayType('application/vnd.apple.mpegurl') && window.Hls && Hls.isSupported()) { ahls = new Hls(); ahls.loadSource(s.url); ahls.attachMedia(audio); }
+  else audio.src = s.url;
+  audio.volume = +$('#vol').value;
   $('#pl-name').textContent = s.n; $('#pl-badge').textContent = initials(s.n); $('#pl-badge').style.background = s.c;
   $('#pl-state').textContent = 'جاري التحميل…'; $('#player').classList.add('show');
   audio.play().catch(() => { $('#pl-state').textContent = 'اضغط ▶ للتشغيل'; $('#pp').textContent = '▶'; });
   if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: s.n, artist: 'مصر لايف'});
   render();
 }
-function stopAudio(){ audio.pause(); audio.removeAttribute('src'); audio.load(); $('#player').classList.remove('show'); current = null; render(); }
+function stopAudio(){ if (ahls) { ahls.destroy(); ahls = null; } audio.pause(); audio.removeAttribute('src'); audio.load(); $('#player').classList.remove('show'); current = null; render(); }
 audio.addEventListener('playing', () => { $('#pl-state').textContent = 'بث مباشر'; $('#pp').textContent = '⏸'; });
 audio.addEventListener('pause', () => { $('#pp').textContent = '▶'; });
 audio.addEventListener('waiting', () => { $('#pl-state').textContent = 'جاري التحميل…'; });
@@ -244,7 +307,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStage()
 
 function activate(el){
   const s = byId(el.dataset.id); if (!s) return;
-  s.type === 'audio' ? playAudio(s) : openStage(s);
+  if (s.type === 'link') { window.open(s.url, '_blank', 'noopener'); return; }
+  (s.type === 'audio' || s.type === 'hlsaudio') ? playAudio(s) : openStage(s);
 }
 $('#main').addEventListener('click', e => {
   const f = e.target.closest('[data-fav]');
@@ -255,17 +319,6 @@ $('#main').addEventListener('keydown', e => { const c = e.target.closest('.st');
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => { tab = b.dataset.tab; store.set('tab', tab); $('#q').value=''; render(); });
 $('#q').oninput = render;
 render();
-// live status from Dailymotion's public API (Maspero streams)
-{
-  const dmItems = ALL.filter(x => x.url.includes('dailymotion.com'));
-  const ids = [...new Set(dmItems.map(x => x.url.split('/video/')[1].split('?')[0]))];
-  fetch('https://api.dailymotion.com/videos?fields=id,onair&limit=100&ids=' + ids.join(','))
-    .then(r => r.json()).then(j => {
-      const off = new Set((j.list || []).filter(v => !v.onair).map(v => v.id));
-      dmItems.forEach(x => { if (off.has(x.url.split('/video/')[1].split('?')[0])) offline.add(x.id); });
-      render();
-    }).catch(() => {});
-}
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
