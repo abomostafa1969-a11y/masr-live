@@ -234,6 +234,7 @@ const LABEL = {audio:'تشغيل مباشر',hlsaudio:'تشغيل مباشر',hl
 // ===== مكتبة المحاضرات =====
 const UTH = 'https://shekhapi.binothaimeen.net/course/sections/audio_library/';
 const UTH_AUDIO = 'https://shekhcp.binothaimeen.net/storage/';
+const uthUrl = c => /^https?:/.test(c) ? c : c.startsWith('/') ? 'https://shekhcp.binothaimeen.net' + c : UTH_AUDIO + c;
 const ALB = [
   ['سلسلة الهدى والنور','selselat_Alhoda-wa-nnor_Torath_Cheikh_Al_Albani_up-by-muslem'],
   ['فتاوى جدة','fatawa_jeddah_Torath_Cheikh_Al_Albani_up-by-muslem'],
@@ -256,7 +257,7 @@ const uthNode = (t, id) => ({t, load: async () => {
   if (s.children && s.children.length) return {nodes: s.children.map(c => ({...uthNode(c.title.ar, c.id), n: c.many_all_lessons_count}))};
   let out = [], page = 1, last = 1;
   do { const l = await fetch(UTH + 'many_lessons/' + id + '/100?page=' + page).then(r => r.json()); out = out.concat(l.data || []); last = (l.meta && l.meta.last_page) || 1; page++; } while (page <= last && page < 40);
-  return {lessons: out.filter(x => x.certificate_url).map(x => ({t: x.title.ar, u: UTH_AUDIO + x.certificate_url}))};
+  return {lessons: out.filter(x => x.certificate_url).map(x => ({t: x.title.ar, u: uthUrl(x.certificate_url)}))};
 }});
 const albNode = (t, id) => ({t, load: async () => {
   const m = await fetch('https://archive.org/metadata/' + id).then(r => r.json());
@@ -265,7 +266,7 @@ const albNode = (t, id) => ({t, load: async () => {
 }});
 const w2aNode = key => ({load: async () => {
   const d = (await w2a())[key];
-  return {nodes: d.series.map(se => ({t: se.t, n: se.items.length, load: async () => ({lessons: se.items.map(i => ({t: i.t, u: i.u}))})}))};
+  return {nodes: d.series.map(se => ({t: se.t, n: se.items.length, load: async () => ({lessons: se.items.map(i => ({t: i.t, u: i.u.replace(/^@/, 'https://archive.org/download/')}))})}))};
 }});
 const LIB = [
   {t:'الشيخ محمد بن صالح العثيمين', d:'المكتبة الصوتية الرسمية للشيخ', c:'#0b6b4a', load: async () => ({nodes: [
